@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+
+    environment:
+      POSTGRES_DB: inventario
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  pgadmin:
+    image: dpage/pgadmin4
+
+    restart: always
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    ports:
+      - "8080:80"
+
+    depends_on:
+      - postgres
+
+  flask:
+    build: .
+
+    ports:
+      - "5000:5000"
+
+    environment:
+      APP_NAME: Sistema Inventario
+      APP_VERSION: 2.0.0
+
+      POSTGRES_DB: inventario
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      DB_HOST: postgres
+
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
